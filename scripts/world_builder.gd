@@ -125,7 +125,7 @@ func _build_chasm(o: Vector3) -> void:
             var sx := rng.randf_range(2.0, 11.0)
             var sy := rng.randf_range(2.0, 12.0)
             var sz := rng.randf_range(2.0, 14.0)
-            var x := side * (22.0 - depth * 0.42)
+            var x: float = float(side) * (22.0 - depth * 0.42)
             _box(Vector3(x, y, z), Vector3(sx, sy, sz), concrete_dark if i % 3 else concrete_light, false, root)
 
     for z in [-205.0, 205.0]:
