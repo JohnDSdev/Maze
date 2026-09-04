@@ -20,15 +20,36 @@ jobs:
       - name: Apply source compatibility and geometry fixes
         shell: bash
         run: |
-          sed -i 's/var x := side \* (22.0 - depth \* 0.42)/var x: float = float(side) * (22.0 - depth * 0.42)/' scripts/world_builder.gd
-          sed -i 's/Vector3(170, 0, 650), Vector3(465, 0, 650)/Vector3(165, 0, 650), Vector3(465, 0, 650)/' scripts/world_builder.gd
-          sed -i 's/Vector3(1300, 0, 470), Vector3(1300, 0, 225)/Vector3(1300, 0, 455), Vector3(1300, 0, 220)/' scripts/world_builder.gd
-          sed -i 's/Vector3(1300, 0, -225), Vector3(1300, 0, -470)/Vector3(1300, 0, -220), Vector3(1300, 0, -470)/' scripts/world_builder.gd
-          if ! git diff --quiet -- scripts/world_builder.gd; then
+          python3 - <<'PY'
+          from pathlib import Path
+
+          builder = Path("scripts/world_builder.gd")
+          s = builder.read_text()
+          replacements = {
+              "var x := side * (22.0 - depth * 0.42)": "var x: float = float(side) * (22.0 - depth * 0.42)",
+              "_build_tunnel(Vector3(0, 0, 230), Vector3(0, 0, 470), 0)": "_build_tunnel(Vector3(-25, 0, 230), Vector3(0, 0, 470), 0)",
+              "_build_tunnel(Vector3(170, 0, 650), Vector3(465, 0, 650), 1)": "_build_tunnel(Vector3(165, 0, 650), Vector3(465, 0, 650), 1)",
+              "_build_tunnel(Vector3(1300, 0, 470), Vector3(1300, 0, 225), 3)": "_build_tunnel(Vector3(1300, 0, 455), Vector3(1300, 0, 220), 3)",
+              "_build_tunnel(Vector3(1300, 0, -225), Vector3(1300, 0, -470), 4)": "_build_tunnel(Vector3(1300, 0, -220), Vector3(1300, 0, -470), 4)",
+              "_build_tunnel(Vector3(0, 0, -430), Vector3(0, 0, -230), 7)": "_build_tunnel(Vector3(0, 0, -430), Vector3(25, 0, -230), 7)",
+              "_box(Vector3(0, 0.35, z), Vector3(48, 0.7, 3.2), concrete_light, true, root)": "_box(Vector3(0, 0.1, z), Vector3(48, 0.2, 3.2), concrete_light, true, root)",
+              "    _box(Vector3(166, 22, 0), Vector3(2.0, 44, 360), concrete_dark, true, root)": "    _box(Vector3(166, 22, -100), Vector3(2.0, 44, 160), concrete_dark, true, root)\n    _box(Vector3(166, 22, 100), Vector3(2.0, 44, 160), concrete_dark, true, root)",
+              "    _box(Vector3(-216, 37, 0), Vector3(2, 74, 360), concrete_black, true, root)": "    _box(Vector3(-216, 37, -100), Vector3(2, 74, 160), concrete_black, true, root)\n    _box(Vector3(-216, 37, 100), Vector3(2, 74, 160), concrete_black, true, root)",
+          }
+          for old, new in replacements.items():
+              s = s.replace(old, new)
+          builder.write_text(s)
+
+          project = Path("project.godot")
+          p = project.read_text().replace("window/handheld/orientation=1", "window/handheld/orientation=0")
+          project.write_text(p)
+          PY
+
+          if ! git diff --quiet -- scripts/world_builder.gd project.godot; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add scripts/world_builder.gd
-            git commit -m "Close procedural world tunnel seams"
+            git add scripts/world_builder.gd project.godot
+            git commit -m "Fix mobile orientation and world connections"
             git push
           fi
 
