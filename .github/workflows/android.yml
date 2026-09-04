@@ -17,15 +17,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Fix strict GDScript type inference
+      - name: Apply source compatibility and geometry fixes
         shell: bash
         run: |
           sed -i 's/var x := side \* (22.0 - depth \* 0.42)/var x: float = float(side) * (22.0 - depth * 0.42)/' scripts/world_builder.gd
+          sed -i 's/Vector3(170, 0, 650), Vector3(465, 0, 650)/Vector3(165, 0, 650), Vector3(465, 0, 650)/' scripts/world_builder.gd
+          sed -i 's/Vector3(1300, 0, 470), Vector3(1300, 0, 225)/Vector3(1300, 0, 455), Vector3(1300, 0, 220)/' scripts/world_builder.gd
+          sed -i 's/Vector3(1300, 0, -225), Vector3(1300, 0, -470)/Vector3(1300, 0, -220), Vector3(1300, 0, -470)/' scripts/world_builder.gd
           if ! git diff --quiet -- scripts/world_builder.gd; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add scripts/world_builder.gd
-            git commit -m "Fix GDScript type inference"
+            git commit -m "Close procedural world tunnel seams"
             git push
           fi
 
@@ -72,7 +75,7 @@ jobs:
           if-no-files-found: error
 
   install-test:
-    name: Emulator install test
+    name: Emulator install and launch test
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -83,7 +86,7 @@ jobs:
           name: maze-android-apk
           path: build/ci
 
-      - name: Boot emulator and install APK
+      - name: Boot emulator, install, and launch APK
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -93,5 +96,15 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
+            set -e
+            PACKAGE=com.johndsdev.brutalistmaze
             adb install -r build/ci/Maze.apk
-            adb shell pm path com.johndsdev.brutalistmaze | grep '^package:'
+            adb shell pm path "$PACKAGE" | grep '^package:'
+            adb logcat -c
+            adb shell monkey -p "$PACKAGE" -c android.intent.category.LAUNCHER 1
+            sleep 8
+            adb shell pidof "$PACKAGE"
+            if adb logcat -d | grep -E 'SCRIPT ERROR|Parse Error|FATAL EXCEPTION'; then
+              echo "Godot/Android reported a fatal or script error during launch."
+              exit 1
+            fi
