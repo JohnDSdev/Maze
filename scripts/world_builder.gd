@@ -32,14 +32,14 @@ func build_world() -> void:
     _build_light_cathedral(CATHEDRAL)
     _build_quarry(QUARRY)
 
-    _build_tunnel(Vector3(0, 0, 230), Vector3(0, 0, 470), 0)
+    _build_tunnel(Vector3(-25, 0, 230), Vector3(0, 0, 470), 0)
     _build_tunnel(Vector3(165, 0, 650), Vector3(465, 0, 650), 1)
     _build_tunnel(Vector3(835, 0, 650), Vector3(1055, 0, 650), 2)
     _build_tunnel(Vector3(1300, 0, 455), Vector3(1300, 0, 220), 3)
     _build_tunnel(Vector3(1300, 0, -220), Vector3(1300, 0, -470), 4)
     _build_tunnel(Vector3(1085, 0, -650), Vector3(835, 0, -650), 5)
     _build_tunnel(Vector3(465, 0, -650), Vector3(220, 0, -650), 6)
-    _build_tunnel(Vector3(0, 0, -430), Vector3(0, 0, -230), 7)
+    _build_tunnel(Vector3(0, 0, -430), Vector3(25, 0, -230), 7)
 
 func _make_materials() -> void:
     var concrete_shader := load("res://shaders/concrete.gdshader") as Shader
@@ -106,7 +106,7 @@ func _build_chasm(o: Vector3) -> void:
     _box(Vector3(22.8, -78, 0), Vector3(2.0, 156, 460), concrete, false, root)
 
     for z in range(-200, 201, 80):
-        _box(Vector3(0, 0.35, z), Vector3(48, 0.7, 3.2), concrete_light, true, root)
+        _box(Vector3(0, 0.1, z), Vector3(48, 0.2, 3.2), concrete_light, true, root)
         _box(Vector3(0, 2.8, z), Vector3(48, 0.55, 0.55), concrete_dark, false, root)
         if abs(z) % 160 == 0:
             _light_strip(Vector3(0, 13.5, z), Vector3(18, 0.16, 0.8), root, 11.0, 34.0, true)
@@ -140,7 +140,8 @@ func _build_organic_nave(o: Vector3) -> void:
 
     _box(Vector3(0, -0.6, 0), Vector3(330, 1.2, 360), concrete, true, root)
     _box(Vector3(-166, 22, 0), Vector3(2.0, 44, 360), concrete_dark, true, root)
-    _box(Vector3(166, 22, 0), Vector3(2.0, 44, 360), concrete_dark, true, root)
+    _box(Vector3(166, 22, -100), Vector3(2.0, 44, 160), concrete_dark, true, root)
+    _box(Vector3(166, 22, 100), Vector3(2.0, 44, 160), concrete_dark, true, root)
     _box(Vector3(0, 44, 0), Vector3(330, 1.5, 360), concrete_black, false, root)
 
     for z in range(-150, 151, 30):
@@ -247,7 +248,8 @@ func _build_hanging_city(o: Vector3) -> void:
 
     _box(Vector3(0, -0.6, 0), Vector3(430, 1.2, 360), concrete_dark, true, root)
     _box(Vector3(0, 74, 0), Vector3(430, 2.0, 360), concrete_black, false, root)
-    _box(Vector3(-216, 37, 0), Vector3(2, 74, 360), concrete_black, true, root)
+    _box(Vector3(-216, 37, -100), Vector3(2, 74, 160), concrete_black, true, root)
+    _box(Vector3(-216, 37, 100), Vector3(2, 74, 160), concrete_black, true, root)
     _box(Vector3(216, 37, 0), Vector3(2, 74, 360), concrete_black, true, root)
 
     var blocks := [
