@@ -33,10 +33,10 @@ func build_world() -> void:
     _build_quarry(QUARRY)
 
     _build_tunnel(Vector3(0, 0, 230), Vector3(0, 0, 470), 0)
-    _build_tunnel(Vector3(170, 0, 650), Vector3(465, 0, 650), 1)
+    _build_tunnel(Vector3(165, 0, 650), Vector3(465, 0, 650), 1)
     _build_tunnel(Vector3(835, 0, 650), Vector3(1055, 0, 650), 2)
-    _build_tunnel(Vector3(1300, 0, 470), Vector3(1300, 0, 225), 3)
-    _build_tunnel(Vector3(1300, 0, -225), Vector3(1300, 0, -470), 4)
+    _build_tunnel(Vector3(1300, 0, 455), Vector3(1300, 0, 220), 3)
+    _build_tunnel(Vector3(1300, 0, -220), Vector3(1300, 0, -470), 4)
     _build_tunnel(Vector3(1085, 0, -650), Vector3(835, 0, -650), 5)
     _build_tunnel(Vector3(465, 0, -650), Vector3(220, 0, -650), 6)
     _build_tunnel(Vector3(0, 0, -430), Vector3(0, 0, -230), 7)
